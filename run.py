@@ -119,11 +119,6 @@ def inference(file_path: str) -> None:
         df_result.to_csv(output_path, index=False)
 
         print(f"\nPredictions saved to: {output_path}")
-        print(f"Predictions summary:")
-        print(f"  Min: {predictions.min():.2f}")
-        print(f"  Max: {predictions.max():.2f}")
-        print(f"  Mean: {predictions.mean():.2f}")
-        print(f"  Median: {np.median(predictions):.2f}")
 
 
 def main():

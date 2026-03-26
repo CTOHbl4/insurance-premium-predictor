@@ -180,7 +180,7 @@ class InsuranceDataProcessor:
         df['END_MNTH'] = df['INSR_END'].apply(self._transform_date)
         df['DURATION'] = df['END_MNTH'] - df['START_MNTH']
 
-        df = df.sort_values(['OBJECT_ID', 'START_MNTH', 'PREMIUM', 'DURATION'])
+        df = df.sort_values(['OBJECT_ID', 'START_MNTH', 'DURATION'])
 
         if train:
             original_len = len(df)
