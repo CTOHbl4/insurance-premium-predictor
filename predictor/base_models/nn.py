@@ -12,11 +12,11 @@ class NeuralNetworkPremiumModel(BasePremiumModel):
     def __init__(self, models_path: Optional[Path] = None):
         super().__init__(models_path)
         self.param_grid = {
-            'regressor__hidden_layer_sizes': [(50,), (100,), (50, 25), (100, 50)],
-            'regressor__activation': ['relu', 'tanh'],
-            'regressor__alpha': [0.0001, 0.001, 0.01],
-            'regressor__learning_rate_init': [0.001, 0.01, 0.1],
-            'regressor__max_iter': [500, 1000]
+            'regressor__hidden_layer_sizes': [(100, 50)],
+            'regressor__activation': ['relu'],
+            'regressor__alpha': [0.01],
+            'regressor__learning_rate_init': [0.01],
+            'regressor__max_iter': [50]
         }
 
     def _create_base_pipeline(self) -> Pipeline:

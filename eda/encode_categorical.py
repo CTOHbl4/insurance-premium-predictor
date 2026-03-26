@@ -81,9 +81,9 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
         X_encoded = X.copy()
 
         X_encoded['MAKE_FREQ'] = self.make_encoder.transform(X_encoded['MAKE']).fillna(0)
-        X_encoded['SEX_LABEL'] = self.sex_encoder.transform(X_encoded['SEX'])
+        X_encoded['SEX_LABEL'] = self.sex_encoder.transform(X_encoded['SEX']).fillna(0)
 
-        insr_encoded = self.insr_encoder.transform(X_encoded[['INSR_TYPE']])
+        insr_encoded = self.insr_encoder.transform(X_encoded[['INSR_TYPE']]).fillna(1202)
         X_encoded = pd.concat([X_encoded, insr_encoded], axis=1)
 
         type_encoded = self.type_encoder.transform(X_encoded[['TYPE_VEHICLE']])

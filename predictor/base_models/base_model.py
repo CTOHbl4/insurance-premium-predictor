@@ -21,6 +21,7 @@ class BasePremiumModel:
         self.metrics_zero = None
         self.metrics_else = None
         self.param_grid = {}
+        self.exclude_columns = ['PREMIUM', 'OBJECT_ID', 'START_MNTH', 'PROD_YEAR']
 
     def _create_base_pipeline(self) -> Pipeline:
         raise NotImplementedError
@@ -34,7 +35,7 @@ class BasePremiumModel:
         if df.empty:
             return None, {'name': name, 'n_samples': 0, 'message': 'No data'}
 
-        X = df.drop(columns=['PREMIUM'])
+        X = df.drop(columns=[c for c in self.exclude_columns if c in df.columns])
         y = df['PREMIUM']
 
         grid_search = GridSearchCV(
@@ -59,8 +60,8 @@ class BasePremiumModel:
         return grid_search.best_estimator_, metrics
 
     def predict(self, df_zero: pd.DataFrame, df_else: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-        pred_zero = self.model_zero.predict(df_zero) if len(df_zero) > 0 else np.array([])
-        pred_else = self.model_else.predict(df_else) if len(df_else) > 0 else np.array([])
+        pred_zero = self.model_zero.predict(df_zero.drop(columns=[c for c in self.exclude_columns if c in df_zero.columns])) if len(df_zero) > 0 else np.array([])
+        pred_else = self.model_else.predict(df_else.drop(columns=[c for c in self.exclude_columns if c in df_else.columns])) if len(df_else) > 0 else np.array([])
         return pred_zero, pred_else
 
     def save(self, path: Optional[Path] = None) -> None:

@@ -434,3 +434,5 @@ class InsuranceDataProcessor:
         self._save_config(self.CONFIG_NAMES['APRIORI'], apriori_config)
 
         self._cache.clear()
+
+        return self

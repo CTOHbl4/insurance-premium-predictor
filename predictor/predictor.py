@@ -55,6 +55,7 @@ class InsurancePremiumPredictor:
         Returns:
             self
         """
+        self.processor.fit(df)
         df_zero, df_else, _ = self.processor.transform(df, train=True)
 
         df_zero_init = df_zero[~df_zero.duplicated(subset=['OBJECT_ID'], keep='first')].copy()
