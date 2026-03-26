@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Dict, Any
 
 from eda import InsuranceDataProcessor
 from predictor.base_models import GradientBoostingPremiumModel, NeuralNetworkPremiumModel
@@ -224,3 +224,10 @@ class InsurancePremiumPredictor:
 
         self.is_fitted = True
         return self
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Return training metrics for both initial and consequent models."""
+        return {
+            'initial_model': self.initial_model.get_metrics(),
+            'consequent_model': self.consequent_model.get_metrics()
+        }

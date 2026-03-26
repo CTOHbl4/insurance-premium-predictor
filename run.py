@@ -59,9 +59,12 @@ def update_model() -> None:
 
     metrics = predictor.get_metrics()
     print("\nTraining metrics:")
-    for model_name, model_metrics in metrics.items():
-        if model_metrics and 'best_score' in model_metrics:
-            print(f"  {model_name}: RMSE = {model_metrics['best_score']:.2f}")
+
+    for model_type, model_metrics in metrics.items():
+        print(f"\n{model_type.upper()}:")
+        for sub_model, sub_metrics in model_metrics.items():
+            if sub_metrics and 'best_score' in sub_metrics:
+                print(f"  {sub_model}: RMSE = {sub_metrics['best_score']:.2f}")
 
 
 def inference(file_path: str) -> None:
