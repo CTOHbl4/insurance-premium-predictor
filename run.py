@@ -3,9 +3,11 @@ import pandas as pd
 import numpy as np
 import sys
 from pathlib import Path
+
 import warnings
 warnings.filterwarnings('ignore', message='.*no_silent_downcasting.*')
 
+sys.path.append('.')
 from predictor import InsurancePremiumPredictor
 
 
@@ -82,17 +84,10 @@ def inference(file_path: str) -> None:
     print(f"Loaded {len(df)} records from {file_path}")
 
     if 'PREMIUM' in df.columns:
-        print("Data contains PREMIUM column. Storing as training data (no prediction).")
+        print("Data contains PREMIUM column. Appending to training data.")
 
-        existing_df = load_existing_training_data()
-
-        if existing_df.empty:
-            combined_df = df.copy()
-        else:
-            combined_df = pd.concat([existing_df, df], ignore_index=True)
-            print(f"Combined with {len(existing_df)} existing records. Total: {len(combined_df)}")
-
-        save_training_data(combined_df)
+        df.to_csv(TRAINING_DATA_FILE, mode='a', header=not TRAINING_DATA_FILE.exists(), index=False)
+        print(f"Appended {len(df)} records to {TRAINING_DATA_FILE}")
 
         print("\nTo update the model, run: python run.py -mode update")
 

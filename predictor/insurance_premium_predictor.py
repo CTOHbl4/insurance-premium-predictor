@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Tuple
 
 from eda import InsuranceDataProcessor
-from base_models import GradientBoostingPremiumModel, NeuralNetworkPremiumModel
+from predictor.base_models import GradientBoostingPremiumModel, NeuralNetworkPremiumModel
 
 
 class InsurancePremiumPredictor:

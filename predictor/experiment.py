@@ -5,8 +5,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import sys
 
 sys.path.append('.')
-from eda import InsuranceDataProcessor
-from predictor import InsurancePremiumPredictor
+from insurance_premium_predictor import InsurancePremiumPredictor
 
 CONFIGS_PATH = Path('eda/configs/filters')
 MODELS_PATH = Path('models')
