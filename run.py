@@ -37,7 +37,7 @@ def train_model(df: pd.DataFrame) -> InsurancePremiumPredictor:
     """Train model on full dataset."""
     print(f"Training model on {len(df)} records...")
     predictor = InsurancePremiumPredictor(CONFIGS_PATH, MODELS_PATH)
-    predictor.fit(df)
+    predictor.fit(df, True)
     predictor.save()
     print("Model training complete.")
     return predictor

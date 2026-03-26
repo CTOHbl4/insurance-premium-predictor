@@ -202,7 +202,8 @@ class InsurancePremiumPredictor:
         self.consequent_model.save()
 
         state_serializable = {
-            f"{k[0]}_{k[1]}": v for k, v in self.state.items()
+            f"{k[0]}_{k[1]}": {'PREVIOUS_PREMIUM': float(v['PREVIOUS_PREMIUM']),
+                               'TOTAL_DURATION': int(v['TOTAL_DURATION'])} for k, v in self.state.items()
         }
         with open(self.models_path / 'predictor_state.json', 'w') as f:
             json.dump(state_serializable, f)
