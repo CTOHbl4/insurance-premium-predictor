@@ -1,0 +1,14 @@
+{
+  "SEX": 0.0,
+  "INSR_TYPE": 1202.0,
+  "INSURED_VALUE": 188223.77000000002,
+  "PREMIUM": 3236.7,
+  "PROD_YEAR": 2005.0,
+  "SEATS_NUM": 4.0,
+  "CCM_TON": 2494.0,
+  "START_MNTH": 154.0,
+  "DURATION": 12.0,
+  "TYPE_VEHICLE": "Truck",
+  "MAKE": "TOYOTA",
+  "USAGE": "Own Goods"
+}

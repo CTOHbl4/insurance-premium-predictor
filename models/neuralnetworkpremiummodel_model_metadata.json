@@ -1,0 +1,34 @@
+{
+  "metrics_zero": {
+    "name": "INSR_ZERO",
+    "n_samples": 10765,
+    "best_params": {
+      "regressor__activation": "relu",
+      "regressor__alpha": 0.01,
+      "regressor__hidden_layer_sizes": [
+        50,
+        100,
+        50
+      ],
+      "regressor__learning_rate_init": 0.001,
+      "regressor__max_iter": 1500
+    },
+    "best_score": 244.10085120512446
+  },
+  "metrics_else": {
+    "name": "ELSE",
+    "n_samples": 36129,
+    "best_params": {
+      "regressor__activation": "relu",
+      "regressor__alpha": 0.01,
+      "regressor__hidden_layer_sizes": [
+        50,
+        100,
+        50
+      ],
+      "regressor__learning_rate_init": 0.01,
+      "regressor__max_iter": 1500
+    },
+    "best_score": 2188.606434787602
+  }
+}

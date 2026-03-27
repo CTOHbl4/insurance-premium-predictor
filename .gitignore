@@ -12,12 +12,6 @@ venv/
 # Data files
 data/
 *.csv
-*.pkl
-*.json
-
-# Models
-models/
-*.pkl
 
 # IDE
 .vscode/
@@ -27,7 +21,6 @@ models/
 
 # Jupyter Notebook
 .ipynb_checkpoints/
-*.ipynb
 
 # OS
 .DS_Store

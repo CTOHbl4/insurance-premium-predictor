@@ -1,0 +1,44 @@
+{
+  "INSR_ZERO": [
+    {
+      "antecedents": {
+        "USAGE": "Fare Paying Passengers"
+      },
+      "consequent": {
+        "INSR_TYPE": 1202
+      },
+      "confidence": 0.9975073908758914
+    },
+    {
+      "antecedents": {
+        "USAGE": "General Cartage",
+        "TYPE_VEHICLE": "Truck"
+      },
+      "consequent": {
+        "INSR_TYPE": 1202
+      },
+      "confidence": 0.9980480353051006
+    }
+  ],
+  "ELSE": [
+    {
+      "antecedents": {
+        "USAGE": "General Cartage"
+      },
+      "consequent": {
+        "INSR_TYPE": 1202
+      },
+      "confidence": 0.9980676328502415
+    },
+    {
+      "antecedents": {
+        "USAGE": "General Cartage",
+        "TYPE_VEHICLE": "Truck"
+      },
+      "consequent": {
+        "INSR_TYPE": 1202
+      },
+      "confidence": 0.9991864958307912
+    }
+  ]
+}

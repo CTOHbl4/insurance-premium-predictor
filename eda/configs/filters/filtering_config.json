@@ -1,0 +1,223 @@
+{
+  "INSR_ZERO": {
+    "PREMIUM": 10879.218100000033,
+    "SEATS_NUM": [
+      [
+        5.0,
+        "Pick-up"
+      ],
+      [
+        160.0,
+        "Bus"
+      ],
+      [
+        8.0,
+        "Automobile"
+      ],
+      [
+        12.0,
+        "Station Wagones"
+      ],
+      [
+        2.0,
+        "Truck"
+      ],
+      [
+        1.0,
+        "Trailers and semitrailers"
+      ],
+      [
+        2.0,
+        "Tanker"
+      ],
+      [
+        5.0,
+        "Motor-cycle"
+      ],
+      [
+        8.0,
+        "Special construction"
+      ],
+      [
+        20.0,
+        "Tractor"
+      ],
+      [
+        0.0,
+        "Trade plates"
+      ]
+    ],
+    "CCM_TON": [
+      [
+        4230.0,
+        "Pick-up"
+      ],
+      [
+        8720.0,
+        "Bus"
+      ],
+      [
+        4169.0,
+        "Automobile"
+      ],
+      [
+        4477.0,
+        "Station Wagones"
+      ],
+      [
+        14618.0,
+        "Truck"
+      ],
+      [
+        13038.999999999987,
+        "Trailers and semitrailers"
+      ],
+      [
+        13980.639999999998,
+        "Tanker"
+      ],
+      [
+        499.0,
+        "Motor-cycle"
+      ],
+      [
+        15000.0,
+        "Special construction"
+      ],
+      [
+        9594.920000000004,
+        "Tractor"
+      ],
+      [
+        0.0,
+        "Trade plates"
+      ]
+    ],
+    "MIX_USAGE": [
+      [
+        "Fire fighting",
+        "Own service"
+      ]
+    ],
+    "MIX_TYPE_VEHICLE": [
+      [
+        "Pick-up",
+        "Trade plates"
+      ],
+      [
+        "Station Wagones",
+        "Trade plates"
+      ]
+    ],
+    "MIX_SEX": []
+  },
+  "ELSE": {
+    "PREMIUM": 48689.22,
+    "INSURED_VALUE": 3069886.79,
+    "SEATS_NUM": [
+      [
+        2.0,
+        "Truck"
+      ],
+      [
+        63.0,
+        "Bus"
+      ],
+      [
+        5.0,
+        "Pick-up"
+      ],
+      [
+        12.0,
+        "Station Wagones"
+      ],
+      [
+        9.0,
+        "Automobile"
+      ],
+      [
+        4.0,
+        "Motor-cycle"
+      ],
+      [
+        2.0,
+        "Tanker"
+      ],
+      [
+        1.0,
+        "Trailers and semitrailers"
+      ],
+      [
+        12.0,
+        "Special construction"
+      ],
+      [
+        3.0,
+        "Tractor"
+      ],
+      [
+        0.0,
+        "Trade plates"
+      ]
+    ],
+    "CCM_TON": [
+      [
+        14000.0,
+        "Truck"
+      ],
+      [
+        9726.0,
+        "Bus"
+      ],
+      [
+        4400.0,
+        "Pick-up"
+      ],
+      [
+        4500.0,
+        "Station Wagones"
+      ],
+      [
+        4230.0,
+        "Automobile"
+      ],
+      [
+        1300.0,
+        "Motor-cycle"
+      ],
+      [
+        15000.0,
+        "Tanker"
+      ],
+      [
+        12800.0,
+        "Trailers and semitrailers"
+      ],
+      [
+        14000.0,
+        "Special construction"
+      ],
+      [
+        10000.0,
+        "Tractor"
+      ],
+      [
+        0.0,
+        "Trade plates"
+      ]
+    ],
+    "MIX_USAGE": [
+      [
+        "Fire fighting",
+        "Taxi"
+      ]
+    ],
+    "MIX_TYPE_VEHICLE": [
+      [
+        "Motor-cycle",
+        "Trade plates"
+      ]
+    ],
+    "MIX_SEX": []
+  }
+}
