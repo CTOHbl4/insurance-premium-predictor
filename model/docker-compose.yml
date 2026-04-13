@@ -1,0 +1,158 @@
+networks:
+  insurance-network:
+    name: insurance-network
+    driver: bridge
+
+volumes:
+  kafka1_data:
+  mysql_data:
+  checkpoints:
+
+services:
+  kafka1:
+    image: docker.io/bitnamilegacy/kafka
+    container_name: kafka1
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka1_data:/bitnami"
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_CFG_NODE_ID=0
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${HOST_IP}:9092
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka1:9094
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_KRAFT_CLUSTER_ID=insurance-cluster-id
+      - KAFKA_CREATE_TOPICS=insurance_train:4:1,insurance_validate:4:1
+    networks:
+      - insurance-network
+    healthcheck:
+      test: ["CMD", "/opt/bitnami/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: insurance_mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+      - ./services/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-insurance_db}
+      MYSQL_USER: ${MYSQL_USER:-insurance_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-insurance_pass}
+    networks:
+      - insurance-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      timeout: 10s
+      retries: 10
+
+  # Kafka UI (optional, for debugging)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka_ui
+    ports:
+      - "8082:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "insurance-kafka-cluster"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092
+    networks:
+      - insurance-network
+    depends_on:
+      - kafka1
+
+  # Consumer (serves predictions)
+  consumer:
+    build:
+      context: .
+      dockerfile: services/consumer/Dockerfile
+    container_name: insurance_consumer
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka1:9092
+      - TRAIN_TOPIC=${TRAIN_TOPIC:-insurance_train}
+      - VALIDATE_TOPIC=${VALIDATE_TOPIC:-insurance_validate}
+      - GROUP_ID=${GROUP_ID:-insurance_consumer_group}
+      - MYSQL_HOST=${MYSQL_HOST:-mysql}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-insurance_db}
+      - MYSQL_USER=${MYSQL_USER:-insurance_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-insurance_pass}
+      - ACTIVE_MODELS_PATH=${ACTIVE_MODELS_PATH:-/app/ml/checkpoints/active/models}
+      - ACTIVE_FILTERS_PATH=${ACTIVE_FILTERS_PATH:-/app/ml/checkpoints/active/filters}
+      - BACKUP_MODELS_PATH=${BACKUP_MODELS_PATH:-/app/ml/checkpoints/backup/models}
+      - BACKUP_FILTERS_PATH=${BACKUP_FILTERS_PATH:-/app/ml/checkpoints/backup/filters}
+      - STAGING_MODELS_PATH=${STAGING_MODELS_PATH:-/app/ml/checkpoints/staging/models}
+      - STAGING_FILTERS_PATH=${STAGING_FILTERS_PATH:-/app/ml/checkpoints/staging/filters}
+      - BATCH_SIZE=${BATCH_SIZE:-1000}
+    volumes:
+      - checkpoints:/app/ml/checkpoints
+    networks:
+      - insurance-network
+    restart: unless-stopped
+
+  # Trainer (retrains models)
+  trainer:
+    build:
+      context: .
+      dockerfile: services/trainer/Dockerfile
+    container_name: insurance_trainer
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST:-mysql}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-insurance_db}
+      - MYSQL_USER=${MYSQL_USER:-insurance_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-insurance_pass}
+      - ACTIVE_MODELS_PATH=${ACTIVE_MODELS_PATH:-/app/ml/checkpoints/active/models}
+      - ACTIVE_FILTERS_PATH=${ACTIVE_FILTERS_PATH:-/app/ml/checkpoints/active/filters}
+      - STAGING_MODELS_PATH=${STAGING_MODELS_PATH:-/app/ml/checkpoints/staging/models}
+      - STAGING_FILTERS_PATH=${STAGING_FILTERS_PATH:-/app/ml/checkpoints/staging/filters}
+      - BACKUP_MODELS_PATH=${BACKUP_MODELS_PATH:-/app/ml/checkpoints/backup/models}
+      - BACKUP_FILTERS_PATH=${BACKUP_FILTERS_PATH:-/app/ml/checkpoints/backup/filters}
+      - MIN_TRAINING_SAMPLES=${MIN_TRAINING_SAMPLES:-10000}
+      - MIN_VALIDATION_SAMPLES=${MIN_VALIDATION_SAMPLES:-5000}
+    volumes:
+      - checkpoints:/app/ml/checkpoints
+    networks:
+      - insurance-network
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: services/dashboard/Dockerfile
+    container_name: insurance_dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST:-mysql}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-insurance_db}
+      - MYSQL_USER=${MYSQL_USER:-insurance_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-insurance_pass}
+      - ACTIVE_MODELS_PATH=${ACTIVE_MODELS_PATH:-/app/ml/checkpoints/active/models}
+    volumes:
+      - checkpoints:/app/ml/checkpoints
+    networks:
+      - insurance-network
+    restart: unless-stopped

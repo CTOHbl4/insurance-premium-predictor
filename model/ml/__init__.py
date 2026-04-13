@@ -1,0 +1,1 @@
+from .predictor.insurance_premium_predictor import InsurancePremiumPredictor

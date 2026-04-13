@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*ipynb
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Checkpoints (should be mounted as volume)
+ml/checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# Environment
+.env
+.env.*
+venv/
+env/
+
+# Data
+*.csv
+*.pkl
+*.json
+!**/*_example.json
+
+# Logs
+*.log
