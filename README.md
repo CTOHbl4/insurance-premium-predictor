@@ -2,6 +2,8 @@
 
 В папку generator надо положить папку с двумя файлами .csv (путь для проверки указан в producer.py).
 
+https://www.kaggle.com/datasets/amirjdai/vehicle-insurance-data
+
 Также, в генераторе (producer.py) и .env нужно ip своего компьютера указать (168...).
 
 # Команды запуска (находимся в корне проекта):
