@@ -38,10 +38,15 @@ def get_errors(engine):
         FROM insurance_records t
         JOIN insurance_records p
             ON t.OBJECT_ID = p.OBJECT_ID
+            AND t.SEX = p.SEX
+            AND t.INSR_TYPE = p.INSR_TYPE
+            AND t.INSURED_VALUE = p.INSURED_VALUE
+            AND t.PROD_YEAR = p.PROD_YEAR
+            AND t.SEATS_NUM = p.SEATS_NUM
             AND t.TYPE_VEHICLE = p.TYPE_VEHICLE
+            AND t.CCM_TON = p.CCM_TON
             AND t.MAKE = p.MAKE
             AND t.USAGE = p.USAGE
-            AND t.PROD_YEAR = p.PROD_YEAR
         WHERE t.PREMIUM IS NOT NULL
             AND p.PREDICTED_PREMIUM IS NOT NULL
         LIMIT 10000
@@ -49,7 +54,6 @@ def get_errors(engine):
     return pd.read_sql(query, engine)['error'].tolist()
 
 
-# Initialize state
 if 'history' not in st.session_state:
     st.session_state.history = {
         'mape': [],
@@ -68,7 +72,6 @@ auto = st.sidebar.checkbox("Auto-refresh (5 min)", value=True)
 if st.sidebar.button("Refresh Now"):
     st.rerun()
 
-# Load data
 metrics = load_metrics()
 engine = get_engine()
 
@@ -85,23 +88,22 @@ if current_hash != st.session_state.last_hash:
     st.session_state.last_hash = current_hash
     st.session_state.counter += 1
     idx = st.session_state.counter
-    
+
     mape = metrics.get('validation_mape')
     if mape:
         st.session_state.history['mape'].append({'index': idx, 'value': mape})
-    
+
     initial = metrics.get('initial_model', {})
     consequent = metrics.get('consequent_model', {})
-    
+
     for name, key in [('INSR_ZERO', 'zero_init'), ('ELSE', 'else_init')]:
         if name in initial:
             st.session_state.history[key].append({'index': idx, 'value': initial[name]['best_score']})
-    
+
     for name, key in [('INSR_ZERO', 'zero_cons'), ('ELSE', 'else_cons')]:
         if name in consequent:
             st.session_state.history[key].append({'index': idx, 'value': consequent[name]['best_score']})
 
-# Plot 1: MAPE
 st.subheader("Validation MAPE")
 if st.session_state.history['mape']:
     df = pd.DataFrame(st.session_state.history['mape'])
@@ -109,7 +111,6 @@ if st.session_state.history['mape']:
 else:
     st.info("Waiting for MAPE data...")
 
-# Plot 2: Outliers Removed by Filter
 st.subheader("Outliers Removed by Filter")
 outliers = metrics.get('data_metrics', {}).get('outliers', {}).get('removed_by_filter', {})
 if outliers:
@@ -118,7 +119,6 @@ if outliers:
 else:
     st.info("No outlier data available")
 
-# Plot 3: Model Scores (4 lines)
 st.subheader("Model RMSE Over Time")
 scores = []
 for key, name in [('zero_init', 'Zero Initial'), ('else_init', 'Else Initial'),
@@ -133,17 +133,15 @@ if scores:
 else:
     st.info("Waiting for model scores...")
 
-# Plot 4: Error Histogram (using pandas bins)
 st.subheader("Prediction Error Distribution")
 errors = get_errors(engine)
 if errors:
-    # Create histogram bins using pandas
     series = pd.Series(errors)
     hist, bins = np.histogram(errors, bins=50)
     bin_centers = (bins[:-1] + bins[1:]) / 2
     df_hist = pd.DataFrame({'bin_center': bin_centers, 'count': hist})
     st.bar_chart(df_hist.set_index('bin_center'))
-    
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Mean Error", f"{np.mean(errors):.0f}")
@@ -154,8 +152,7 @@ if errors:
 else:
     st.info("No error data available")
 
-# Plot 5: Current values summary
-st.subheader("Current Model Performance")
+st.subheader("Current Model Performance (RMSE)")
 col1, col2 = st.columns(2)
 with col1:
     st.markdown("**Initial Model (GB)**")
