@@ -32,38 +32,61 @@ def load_metrics():
         return {}
 
 
-def get_errors(engine):
+def get_prediction_data(engine):
     query = """
-        SELECT t.PREMIUM - p.PREDICTED_PREMIUM as error
+        SELECT
+            t.SEX,
+            t.INSR_BEGIN,
+            t.INSR_END,
+            t.EFFECTIVE_YR,
+            t.INSR_TYPE,
+            t.INSURED_VALUE,
+            t.OBJECT_ID,
+            t.PROD_YEAR,
+            t.SEATS_NUM,
+            t.CARRYING_CAPACITY,
+            t.TYPE_VEHICLE,
+            t.CCM_TON,
+            t.MAKE,
+            t.USAGE,
+            t.CLAIM_PAID,
+            t.PREMIUM AS actual,
+            p.PREDICTED_PREMIUM AS predicted,
+            p.model_version,
+            p.ingestion_time
         FROM insurance_records t
         JOIN insurance_records p
             ON t.OBJECT_ID = p.OBJECT_ID
             AND t.SEX = p.SEX
             AND t.INSR_TYPE = p.INSR_TYPE
             AND t.INSURED_VALUE = p.INSURED_VALUE
-            AND t.PROD_YEAR = p.PROD_YEAR
-            AND t.SEATS_NUM = p.SEATS_NUM
             AND t.TYPE_VEHICLE = p.TYPE_VEHICLE
-            AND t.CCM_TON = p.CCM_TON
             AND t.MAKE = p.MAKE
             AND t.USAGE = p.USAGE
+            AND t.INSR_BEGIN = p.INSR_BEGIN
+            AND t.INSR_END = p.INSR_END
         WHERE t.PREMIUM IS NOT NULL
             AND p.PREDICTED_PREMIUM IS NOT NULL
+        ORDER BY p.ingestion_time DESC
         LIMIT 10000
     """
-    return pd.read_sql(query, engine)['error'].tolist()
+    df = pd.read_sql(query, engine)
+    df['error'] = df['predicted'] - df['actual']
+    return df
 
 
-if 'history' not in st.session_state:
-    st.session_state.history = {
-        'mape': [],
+if 'mape_history' not in st.session_state:
+    st.session_state.mape_history = []
+    st.session_state.last_mape = None
+
+if 'scores_history' not in st.session_state:
+    st.session_state.scores_history = {
         'zero_init': [],
         'zero_cons': [],
         'else_init': [],
         'else_cons': []
     }
-    st.session_state.last_hash = None
-    st.session_state.counter = 0
+    st.session_state.last_params_hash = None
 
 st.set_page_config(layout="wide")
 st.title("Insurance Dashboard")
@@ -74,40 +97,50 @@ if st.sidebar.button("Refresh Now"):
 
 metrics = load_metrics()
 engine = get_engine()
+df_predictions = get_prediction_data(engine)
+now = pd.Timestamp.now()
 
-# Check if metrics changed
-current_hash = hash((
-    metrics.get('validation_mape'),
-    metrics.get('initial_model', {}).get('INSR_ZERO', {}).get('best_score'),
-    metrics.get('initial_model', {}).get('ELSE', {}).get('best_score'),
-    metrics.get('consequent_model', {}).get('INSR_ZERO', {}).get('best_score'),
-    metrics.get('consequent_model', {}).get('ELSE', {}).get('best_score')
+# update MAPE
+current_mape = metrics.get('validation_mape')
+if current_mape and current_mape != st.session_state.last_mape:
+    st.session_state.mape_history.append({'timestamp': now, 'value': current_mape})
+    st.session_state.last_mape = current_mape
+    if len(st.session_state.mape_history) > 100:
+        st.session_state.mape_history = st.session_state.mape_history[-100:]
+
+# update RMSE
+initial = metrics.get('initial_model', {})
+consequent = metrics.get('consequent_model', {})
+
+current_params_hash = hash((
+    str(initial.get('INSR_ZERO', {}).get('best_params')),
+    str(initial.get('ELSE', {}).get('best_params')),
+    str(consequent.get('INSR_ZERO', {}).get('best_params')),
+    str(consequent.get('ELSE', {}).get('best_params'))
 ))
 
-if current_hash != st.session_state.last_hash:
-    st.session_state.last_hash = current_hash
-    st.session_state.counter += 1
-    idx = st.session_state.counter
-
-    mape = metrics.get('validation_mape')
-    if mape:
-        st.session_state.history['mape'].append({'index': idx, 'value': mape})
-
-    initial = metrics.get('initial_model', {})
-    consequent = metrics.get('consequent_model', {})
+if current_params_hash != st.session_state.last_params_hash:
+    st.session_state.last_params_hash = current_params_hash
 
     for name, key in [('INSR_ZERO', 'zero_init'), ('ELSE', 'else_init')]:
         if name in initial:
-            st.session_state.history[key].append({'index': idx, 'value': initial[name]['best_score']})
+            score = initial[name]['best_score']
+            st.session_state.scores_history[key].append({'timestamp': now, 'value': score})
+            if len(st.session_state.scores_history[key]) > 100:
+                st.session_state.scores_history[key] = st.session_state.scores_history[key][-100:]
 
     for name, key in [('INSR_ZERO', 'zero_cons'), ('ELSE', 'else_cons')]:
         if name in consequent:
-            st.session_state.history[key].append({'index': idx, 'value': consequent[name]['best_score']})
+            score = consequent[name]['best_score']
+            st.session_state.scores_history[key].append({'timestamp': now, 'value': score})
+            if len(st.session_state.scores_history[key]) > 100:
+                st.session_state.scores_history[key] = st.session_state.scores_history[key][-100:]
 
-st.subheader("Validation MAPE")
-if st.session_state.history['mape']:
-    df = pd.DataFrame(st.session_state.history['mape'])
-    st.line_chart(df.set_index('index'))
+st.subheader("Validation MAPE Over Time")
+if st.session_state.mape_history:
+    df = pd.DataFrame(st.session_state.mape_history)
+    df = df.set_index('timestamp')
+    st.line_chart(df)
 else:
     st.info("Waiting for MAPE data...")
 
@@ -123,51 +156,42 @@ st.subheader("Model RMSE Over Time")
 scores = []
 for key, name in [('zero_init', 'Zero Initial'), ('else_init', 'Else Initial'),
                   ('zero_cons', 'Zero Consequent'), ('else_cons', 'Else Consequent')]:
-    for record in st.session_state.history[key]:
-        scores.append({'model': name, 'index': record['index'], 'score': record['value']})
+    for record in st.session_state.scores_history[key]:
+        scores.append({'model': name, 'timestamp': record['timestamp'], 'score': record['value']})
 
 if scores:
     df = pd.DataFrame(scores)
-    pivot_df = df.pivot(index='index', columns='model', values='score')
+    pivot_df = df.pivot(index='timestamp', columns='model', values='score')
     st.line_chart(pivot_df)
 else:
     st.info("Waiting for model scores...")
 
 st.subheader("Prediction Error Distribution")
-errors = get_errors(engine)
-if errors:
-    series = pd.Series(errors)
-    hist, bins = np.histogram(errors, bins=50)
+if not df_predictions.empty:
+    hist, bins = np.histogram(df_predictions['error'], bins=50)
     bin_centers = (bins[:-1] + bins[1:]) / 2
     df_hist = pd.DataFrame({'bin_center': bin_centers, 'count': hist})
     st.bar_chart(df_hist.set_index('bin_center'))
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Mean Error", f"{np.mean(errors):.0f}")
+        st.metric("Mean Error", f"{df_predictions['error'].mean():.0f}")
     with col2:
-        st.metric("Median Error", f"{np.median(errors):.0f}")
+        st.metric("Median Error", f"{df_predictions['error'].median():.0f}")
     with col3:
-        st.metric("Std Dev", f"{np.std(errors):.0f}")
+        st.metric("Std Dev", f"{df_predictions['error'].std():.0f}")
 else:
     st.info("No error data available")
 
-st.subheader("Current Model Performance (RMSE)")
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown("**Initial Model (GB)**")
-    initial = metrics.get('initial_model', {})
-    for name in ['INSR_ZERO', 'ELSE']:
-        if name in initial:
-            st.metric(f"{name}", f"{initial[name]['best_score']:.0f}")
-with col2:
-    st.markdown("**Consequent Model (NN)**")
-    consequent = metrics.get('consequent_model', {})
-    for name in ['INSR_ZERO', 'ELSE']:
-        if name in consequent:
-            st.metric(f"{name}", f"{consequent[name]['best_score']:.0f}")
+st.subheader("Recent Predictions (Last 5)")
+if not df_predictions.empty:
+    st.dataframe(
+        df_predictions.head(5),
+        use_container_width=True
+    )
+else:
+    st.info("No prediction data available")
 
-# Auto-refresh
 if auto:
     time.sleep(300)
     st.rerun()

@@ -1,0 +1,211 @@
+Trainer
+======================================================================================================================
+======================================================================================================================
+
+2026-04-13 10:39:59,366 - __main__ - INFO - ============================================================
+2026-04-13 10:39:59,369 - __main__ - INFO - Starting training cycle
+2026-04-13 10:39:59,369 - __main__ - INFO - ============================================================
+2026-04-13 10:39:59,370 - __main__ - INFO - Fetching training data...
+2026-04-13 10:40:00,458 - __main__ - INFO - Fetched 170995 records
+2026-04-13 10:40:00,459 - __main__ - INFO - Train samples: 165995
+2026-04-13 10:40:00,459 - __main__ - INFO - Validation samples: 5000
+2026-04-13 10:40:01,999 - __main__ - INFO - MAPE increased from 49.72% to 59.50%
+2026-04-13 10:40:01,999 - __main__ - INFO - Data drift detected. Running incremental training (retrain)...
+2026-04-13 10:40:01,999 - __main__ - INFO - Training on 165995 records... (full_train=False)
+2026-04-13 10:42:05,343 - __main__ - INFO - Training complete. Version: 2:2
+2026-04-13 10:42:05,344 - __main__ - INFO - Training metrics. Version: {
+  "validation_mape": 51.76504599521192,
+  "data_metrics": {
+    "nans": {
+      "INSR_ZERO_duration_removed": 1920,
+      "duplicates_removed": 194,
+      "trade_plates_CCM_TON_nan": 0,
+      "trade_plates_SEATS_NUM_nan": 0,
+      "trade_plates_prod_year_nan": 0,
+      "premium_nan_count": 0,
+      "unknown_makes": 780,
+      "CCM_TON_imputed": 20282,
+      "SEATS_NUM_imputed": 87,
+      "PROD_YEAR_imputed": 70,
+      "INSURED_VALUE_imputed": 0,
+      "remaining_nans": {
+        "SEX": 0,
+        "INSR_TYPE": 0,
+        "INSURED_VALUE": 0,
+        "OBJECT_ID": 0,
+        "PROD_YEAR": 0,
+        "SEATS_NUM": 0,
+        "TYPE_VEHICLE": 0,
+        "CCM_TON": 0,
+        "MAKE": 0,
+        "USAGE": 0,
+        "PREMIUM": 0,
+        "START_MNTH": 0,
+        "DURATION": 0
+      }
+    },
+    "outliers": {
+      "removed_by_filter": {
+        "ELSE_PREMIUM": 1035,
+        "ELSE_INSURED_VALUE": 1649,
+        "ELSE_SEATS_NUM": 9116,
+        "ELSE_CCM_TON": 1633,
+        "INSR_ZERO_PREMIUM": 635,
+        "INSR_ZERO_SEATS_NUM": 1743,
+        "INSR_ZERO_CCM_TON": 1401
+      },
+      "ELSE_insured_records": 103494,
+      "final_ELSE_records": 90061,
+      "INSR_ZERO_insured_records": 60387,
+      "final_INSR_ZERO_records": 56608
+    },
+    "apriori": {
+      "INSR_ZERO": {
+        "1": 20,
+        "2": 76,
+        "8": 13,
+        "54": 17
+      },
+      "ELSE": {
+        "0": 45,
+        "1": 31,
+        "3": 94,
+        "6": 11,
+        "10": 32009,
+        "11": 28,
+        "52": 2417,
+        "58": 2
+      }
+    },
+    "train_length": {
+      "initial": {
+        "INSR_ZERO": 44650,
+        "ELSE": 56176
+      },
+      "consequent": {
+        "INSR_ZERO": 11958,
+        "ELSE": 33885
+      }
+    }
+  },
+  "initial_model": {
+    "INSR_ZERO": {
+      "name": "INSR_ZERO",
+      "n_samples": 39895,
+      "best_params": {
+        "regressor__learning_rate": 0.05,
+        "regressor__max_depth": 5,
+        "regressor__min_samples_split": 2,
+        "regressor__n_estimators": 200,
+        "regressor__subsample": 0.8
+      },
+      "best_score": 518.9427108751768
+    },
+    "ELSE": {
+      "name": "ELSE",
+      "n_samples": 53439,
+      "best_params": {
+        "regressor__learning_rate": 0.05,
+        "regressor__max_depth": 9,
+        "regressor__max_features": "log2",
+        "regressor__min_samples_leaf": 5,
+        "regressor__min_samples_split": 10,
+        "regressor__n_estimators": 500,
+        "regressor__subsample": 0.7
+      },
+      "best_score": 2684.6325978778905
+    }
+  },
+  "consequent_model": {
+    "INSR_ZERO": {
+      "name": "INSR_ZERO",
+      "n_samples": 3154,
+      "best_params": {
+        "regressor__activation": "relu",
+        "regressor__alpha": 0.01,
+        "regressor__hidden_layer_sizes": [
+          50,
+          25
+        ],
+        "regressor__learning_rate_init": 0.01,
+        "regressor__max_iter": 1500
+      },
+      "best_score": 916.061969718309
+    },
+    "ELSE": {
+      "name": "ELSE",
+      "n_samples": 26552,
+      "best_params": {
+        "regressor__activation": "relu",
+        "regressor__alpha": 0.01,
+        "regressor__hidden_layer_sizes": [
+          100,
+          50,
+          25
+        ],
+        "regressor__learning_rate_init": 0.01,
+        "regressor__max_iter": 1500
+      },
+      "best_score": 2276.2300158679795
+    }
+  }
+}
+2026-04-13 10:42:05,344 - __main__ - INFO - Swapping models...
+2026-04-13 10:42:05,352 - __main__ - INFO - Model swapped. Version: 2:2
+2026-04-13 10:42:05,441 - __main__ - INFO - Waiting for new data...
+2026-04-13 10:43:05,454 - __main__ - INFO - ============================================================
+2026-04-13 10:43:05,461 - __main__ - INFO - Starting training cycle
+2026-04-13 10:43:05,461 - __main__ - INFO - ============================================================
+2026-04-13 10:43:05,461 - __main__ - INFO - Fetching training data...
+2026-04-13 10:43:06,733 - __main__ - INFO - Fetched 182994 records
+2026-04-13 10:43:06,733 - __main__ - INFO - Train samples: 177994
+2026-04-13 10:43:06,733 - __main__ - INFO - Validation samples: 5000
+2026-04-13 10:43:08,421 - __main__ - INFO - No significant drift detected. Skipping training.
+2026-04-13 10:43:08,614 - __main__ - INFO - Waiting for new data...
+2026-04-13 10:44:08,677 - __main__ - INFO - ============================================================
+2026-04-13 10:44:08,681 - __main__ - INFO - Starting training cycle
+...
+
+Consumer
+======================================================================================================================
+======================================================================================================================
+
+2026-04-13 10:52:08,063 - __main__ - INFO - Saved 1000 predictions from batch
+2026-04-13 10:52:10,581 - __main__ - INFO - Saved 1000 training records from batch
+2026-04-13 10:52:22,993 - __main__ - INFO - Saved 1000 predictions from batch
+2026-04-13 10:52:25,626 - __main__ - INFO - Saved 1000 training records from batch
+2026-04-13 10:52:37,391 - __main__ - INFO - Saved 1000 predictions from batch
+2026-04-13 10:52:40,925 - __main__ - INFO - Saved 1000 training records from batch
+2026-04-13 10:52:50,131 - __main__ - INFO - New model detected! Reloading...
+2026-04-13 10:52:50,371 - __main__ - INFO - Loaded active model: 3:3
+2026-04-13 10:52:50,408 - __main__ - INFO - Model updated successfully
+2026-04-13 10:52:52,025 - __main__ - INFO - Saved 1000 predictions from batch
+2026-04-13 10:52:55,969 - __main__ - INFO - Saved 1000 training records from batch
+2026-04-13 10:53:07,276 - __main__ - INFO - Saved 1000 predictions from batch
+...
+
+dashboard
+======================================================================================================================
+======================================================================================================================
+  You can now view your Streamlit app in your browser.
+
+  URL: http://0.0.0.0:8501
+
+2026-04-13 10:17:28,188 - ERROR - Failed to load metrics: [Errno 2] No such file or directory: '/app/ml/checkpoints/active/models/predictor_state.json'
+
+
+generator (prints)
+======================================================================================================================
+======================================================================================================================
+
+Loaded 802036 records
+Connected to Kafka at (мой ip в сети):9092
+Sent 110000 to insurance_train
+Waiting 7 minutes...
+Sent 1000 to insurance_validate
+Sent 1000 to insurance_train
+Sent 1000 to insurance_validate
+Sent 1000 to insurance_train
+Sent 1000 to insurance_validate
+Sent 1000 to insurance_train
+Sent 1000 to insurance_validate

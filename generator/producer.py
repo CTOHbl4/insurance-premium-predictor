@@ -5,7 +5,7 @@ import time
 from kafka import KafkaProducer
 
 # Config
-KAFKA_BOOTSTRAP = "192.168.1.114:9092"
+KAFKA_BOOTSTRAP = "мой ip"
 CSV_PATH1 = "vehicle-insurance-data/motor_data11-14lats.csv"
 CSV_PATH2 = "vehicle-insurance-data/motor_data14-2018.csv"
 
