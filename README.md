@@ -14,12 +14,12 @@ https://www.kaggle.com/datasets/amirjdai/vehicle-insurance-data
 cd model
 sudo docker compose up -d --build
 sleep 120
-cd ..
+cd ../generator
 python3 generator/producer.py
 ```
 
 ```
 ctrl-c, чтобы прервать producer
-cd model
+cd ../model
 docker compose down -v
 ```
